@@ -24,3 +24,47 @@ ponents: the MCS-ResNet50, the D-BFAM, and the CFSM.
  of the hand and the object separately.
 <p align="center">
 </p>
+## Install
+Install packages from requirements.txt. We trained our models on RTX 4090 GPUs with CUDA 11.8. We recommend using Linux for reproduction.
+
+```bash
+conda create -n ho3d python=3.8
+conda activate ho3d
+pip install -r requirements.txt
+```
+## Install additional dependencies 
+
+```bash
+pip install "pytorch3d" -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/py38_cu118_pyt112/download.html
+pip install neural-renderer-pytorch
+pip install torch-geometric
+```
+2.Run training on HO3D dataset:
+```bash
+python train.py --gpu 0 --stage param --trainset HO3D
+```
+3.Generate reconstructions and visualizations:
+```bash
+python test_820.py --gpu 0 --model_path checkpoints/best_model.pth.tar
+python demo_eval.py --gpu 0 --model_path checkpoints/best_model.pth.tar
+```
+## Dataset Preparation
+1.Download HO3D v3 from official website and preprocess the data
+```bash
+python scripts/preprocess_ho3d.py --data_path /path/to/ho3d --output_path local_data/ho3d_simple
+```
+2.Download DexYCB from official website and preprocess the data
+```bash
+python scripts/preprocess_dexycb.py --data_path /path/to/dexycb --output_path local_data/dex_simple
+```
+## Training Pipeline
+Stage 1: Initial Mesh Estimation
+```bash
+python train.py --gpu 0,1,2,3 --stage lixel --batch_size 32
+```
+Stage 2: Joint Refinement
+```bash
+python train.py --gpu 0,1,2,3 --stage param --batch_size 24 --resume
+```
+## Results
+<img width="699" height="194" alt="image" src="" />
