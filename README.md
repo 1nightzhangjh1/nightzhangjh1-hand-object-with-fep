@@ -28,47 +28,70 @@ ponents: the MCS-ResNet50, the D-BFAM, and the CFSM.
 
 
 ## Install
-Install packages in requirments.txt,We trained the model on a single 4090 gpu with 11.8 CUDA,We recommend using a Linux server for reproduction  
+Install packages from requirements.txt. We trained our models on RTX 4090 GPUs with CUDA 11.8. We recommend using Linux for reproduction.
+
 ```bash
-conda create -n <environment name>
-conda activate <environment name>
-pip install -r requirments.txt
+conda create -n ho3d python=3.8
+conda activate ho3d
+pip install -r requirements.txt
+```
+## Install additional dependencies 
+
+```bash
+pip install "pytorch3d" -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/py38_cu118_pyt112/download.html
+pip install neural-renderer-pytorch
+pip install torch-geometric
 ```
 
-Install tiny-cuda-nn
+## Quick Start
+1.Place the downloaded checkpoints in the appropriate directories:
 ```bash
-git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
+hand_object_recon
+|-- checkpoints
+    |-- resnet50_backbone.pth
+    |-- hand_mesh_net.pth
+    |-- obj_mesh_net.pth
+|-- data
+    |-- mano
+        |-- MANO_RIGHT.pkl
 ```
-Install CLIP
+2.Run training on HO3D dataset:
 ```bash
-git+https://github.com/openai/CLIP.git
+python train.py --gpu 0 --stage param --trainset HO3D
 ```
-Download checkpoints [here](https://pan.baidu.com/s/1SZ51OcqDAk68VJOPMnZ_gQ) 
-## RUN
-1.Place the downloaded checkpoint in the corresponding folder
+3.Generate reconstructions and visualizations:
 ```bash
-pzh3d
-|-- ckpt
-    |-- ViT-L-14.ckpt
-    |-- pzh3d-pretrain.ckpt
-|-- models
-    |-- pzhadapter_sketch_sd15v2.pth
-    |-- sd-v1-4.ckpt
+python test_820.py --gpu 0 --model_path checkpoints/best_model.pth.tar
+python demo_eval.py --gpu 0 --model_path checkpoints/best_model.pth.tar
 ```
-2.Combine sketches with text to generate images
+## Dataset Preparation
+1.Download HO3D v3 from official website and preprocess the data
 ```bash
-python test_adapter.py --which_cond sketch --cond_path examples/sketch/sofa3.png --cond_inp_type sketch --prompt "A purple sofa." --sd_ckpt models/sd-v1-4.ckpt --resize_short_edge 512 --cond_tau 0.8 --cond_weight 0.8 --n_samples 5 --adapter_ckpt models/t2iadapter_sketch_sd15v2.pth
+python scripts/preprocess_ho3d.py --data_path /path/to/ho3d --output_path local_data/ho3d_simple
 ```
-3.3D generation
+2.Download DexYCB from official website and preprocess the data
 ```bash
-3.1 Generate multi-view images
-python generate.py --ckpt ckpt/syncdreamer-pretrain.ckpt --input testset/sofa3.png --output output/sofa3 --sample_num 4 --cfg_scale 1.5 --elevation 30 --crop_size 200
-3.2 Use the Nues algorithm to generate rendered videos as well as meshes
-python train_renderer.py -i output/sofa3/0.png -n sofa3-neus -b configs/neus.yaml -l output/renderer 
+python scripts/preprocess_dexycb.py --data_path /path/to/dexycb --output_path local_data/dex_simple
+```
+## Training Pipeline
+Stage 1: Initial Mesh Estimation
+```bash
+python train.py --gpu 0,1,2,3 --stage lixel --batch_size 32
+```
+Stage 2: Joint Refinement
+```bash
+python train.py --gpu 0,1,2,3 --stage param --batch_size 24 --resume
+```
+## Evaluation
+Quantitative Evaluation
+```bash
+python evaluate.py --gpu 0 --test_set HO3D --model_path checkpoints/final_model.pth.tar
+```
+
+Qualitative Results
+```bash
+python visualize.py --gpu 0 --input examples/test_image.jpg --output results/ --model_path checkpoints/final_model.pth.tar
 ```
 ## Results
-<p align="center">
-  <img src="assets/github图.jpg" width="400">
-</p>
-
+<img width="699" height="194" alt="image" src="https://github.com/user-attachments/assets/4c977785-a9b0-4a98-ae9e-d78588654296" />
 
