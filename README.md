@@ -57,4 +57,4 @@ python scripts/preprocess_dexycb.py --data_path /path/to/dexycb --output_path lo
 
 ## Results
 <img width="200" height="194" alt="image" src="https://github.com/1nightzhangjh1/nightzhangjh1-hand-object-with-fep/blob/main/ho3d1.png" />
-<img width="600" height="194" alt="image" src="https://github.com/1nightzhangjh1/nightzhangjh1-hand-object-with-fep/blob/main/dexycb1.png" />
+<img width="500" height="194" alt="image" src="https://github.com/1nightzhangjh1/nightzhangjh1-hand-object-with-fep/blob/main/dexycb1.png" />
