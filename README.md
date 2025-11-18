@@ -22,6 +22,7 @@ ponents: the MCS-ResNet50, the D-BFAM, and the CFSM.
  decoders for the hand and the object, the supplemented
  features are upsampled to regress the mesh representations
  of the hand and the object separately.
+ <img width="500" height="194" alt="image" src="https://github.com/1nightzhangjh1/nightzhangjh1-hand-object-with-fep/blob/main/OVERALL.png" />
 <p align="center">
 </p>
 ## Install
