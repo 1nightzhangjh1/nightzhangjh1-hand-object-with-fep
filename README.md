@@ -43,7 +43,7 @@ pip install torch-geometric
 
 1.Generate reconstructions and visualizations:
 ```bash
-python test.py --gpu 0 --model_path
+python test_820.py --gpu 0 --model_path
 
 ```
 ## Dataset Preparation
