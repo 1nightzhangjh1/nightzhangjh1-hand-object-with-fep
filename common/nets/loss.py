@@ -19,7 +19,23 @@ class CoordLoss(nn.Module):
             loss = torch.cat((loss[:,:,:2], loss_z),2)
         return loss
 
+import torch
+import torch.nn as nn
 
+class SDFLoss(nn.Module):
+    def __init__(self, N_p, N_o):
+        super(EDEPLoss, self).__init__()
+        self.N_p = N_p  
+        self.N_o = N_o  
+
+    def forward(self, phi_p, phi_o, tau):
+     
+        part_p = torch.sum(-(torch.pow(phi_p, tau) + tau)) / self.N_p
+        
+        part_o = torch.sum(-(torch.pow(phi_o, tau) + tau)) / self.N_o
+    
+        loss = part_p + part_o
+        return loss
 class SequenceLoss(nn.Module):
     def __init__(self):
         super(SequenceLoss, self).__init__()
